@@ -33,7 +33,7 @@ fn list() {
 
 	for index, project_path in project_paths {
 		number := index + 1
-		project := read_project(project_path)
+		project := new_project(project_path)
 		table << [number.str(), project.name, project.date.format_ss()]
 	}
 
@@ -47,7 +47,9 @@ fn edit(id string) {
 
 fn complete(id string) {
 	project_path := find_project_path_by_id(id) or { panic(err) }
-	mark_as_complete(project_path)
+	mut project := new_project(project_path)
+	project.complete = true
+	project.save()
 }
 
 fn main() {

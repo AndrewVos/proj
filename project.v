@@ -5,15 +5,21 @@ import os
 
 struct Project {
 mut:
+	path     string
+	contents string
 	name     string
 	date     time.Time
 	complete bool
 }
 
-fn read_project(path string) Project {
+fn new_project(path string) Project {
 	front_matter := retrieve_front_matter(path) or { panic(err) }
+	contents := retrieve_contents(path)
 
-	mut project := Project{}
+	mut project := Project{
+		path: path
+		contents: contents
+	}
 
 	for line in front_matter.split('\n') {
 		key := line.all_before('=')
@@ -31,34 +37,17 @@ fn read_project(path string) Project {
 	return project
 }
 
-fn change_project_data(path string, key string, value string) {
-	contents := os.read_file(path) or { panic(err) }
+fn (project Project) save() {
+	date := project.date.format_ss()
 
-	front_matter_start := contents.index('---') or {
-		panic("can't find any front matter for file $path")
-	}
-	front_matter_end := contents.index_after('---', front_matter_start + 1)
-
-	front_matter := contents[front_matter_start + 3..front_matter_end].trim_space()
-
-	mut new_front_matter := []string{}
-
-	for line in front_matter.split_into_lines() {
-		current_key := line.all_before('=')
-		if current_key != key {
-			new_front_matter << line
-		}
-	}
-
-	new_front_matter << '$key=$value'
-
-	new_contents := [
-		contents[0..front_matter_start + 3],
-		new_front_matter.join('\n'),
-		contents[front_matter_end..],
-	].join('\n')
-
-	safe_write_file(path, new_contents)
+	safe_write_file(project.path, [
+		'---',
+		'name=$project.name',
+		'date=$date',
+		'complete=$project.complete',
+		'---',
+		project.contents,
+	].join('\n'))
 }
 
 fn safe_write_file(path string, contents string) {
@@ -72,6 +61,17 @@ fn safe_write_file(path string, contents string) {
 		os.rm(path) or { panic(err) }
 	}
 	os.mv(tmp, path) or { panic(err) }
+}
+
+fn retrieve_contents(path string) string {
+	file_contents := os.read_file(path) or { panic(err) }
+
+	front_matter_start := file_contents.index('---') or {
+		panic("can't find any front matter for file $path")
+	}
+	front_matter_end := file_contents.index_after('---', front_matter_start + 1)
+
+	return file_contents[front_matter_end + 3..].trim_space()
 }
 
 fn retrieve_front_matter(path string) ?string {
@@ -111,10 +111,6 @@ fn find_project_path_by_id(id string) ?string {
 	exit(1)
 }
 
-fn mark_as_complete(project_path string) {
-	change_project_data(project_path, 'complete', 'true')
-}
-
 fn new_project_path(name string) ?string {
 	file_type := 'md'
 
@@ -138,7 +134,7 @@ fn new_project_path(name string) ?string {
 
 fn list_incomplete_project_paths() []string {
 	return list_project_paths().filter(fn (path string) bool {
-		project := read_project(path)
+		project := new_project(path)
 		return !project.complete
 	})
 }
