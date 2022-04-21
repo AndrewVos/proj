@@ -4,12 +4,31 @@ import os
 import term
 
 fn help() {
-	println('proj')
-	println('  Usage: proj create "Project Name"')
-	println('  Usage: proj list')
-	println('  Usage: proj list-all')
-	println('  Usage: proj edit <id>')
-	println('  Usage: proj complete <id>')
+	tool_name := term.colorize(term.green, 'proj')
+
+	println(tool_name)
+	println('')
+
+	usage_lines := [
+		['create', '"Project Name"'],
+		['list'],
+		['list-all'],
+		['edit', '<id>'],
+		['complete', '<id>'],
+	]
+
+	for line in usage_lines {
+		print('  Usage: $tool_name ')
+		for index, part in line {
+			if index == 0 {
+				print(term.colorize(term.blue, part))
+			} else {
+				print(' ')
+				print(term.colorize(term.red, part))
+			}
+		}
+		println('')
+	}
 }
 
 fn create(name string) {
