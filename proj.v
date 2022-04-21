@@ -6,8 +6,9 @@ import math
 
 struct Project {
 mut:
-	name string
-	date time.Time
+	name     string
+	date     time.Time
+	complete bool
 }
 
 fn help() {
@@ -15,10 +16,11 @@ fn help() {
 	println('  Usage: proj create "Project Name"')
 	println('  Usage: proj list')
 	println('  Usage: proj edit <id>')
+	println('  Usage: proj complete <id>')
 }
 
 fn list() {
-	project_paths := list_project_paths()
+	project_paths := list_incomplete_project_paths()
 
 	mut table := [['ID', 'Name', 'Date']]
 
@@ -79,20 +81,79 @@ fn create(name string) {
 	edit_project(path)
 }
 
-fn edit(id string) {
-	project_paths := list_project_paths()
+fn find_project_path_by_id(id string) ?string {
+	project_paths := list_incomplete_project_paths()
 
 	for index, project_path in project_paths {
 		number := index + 1
 		if number.str() == id {
-			edit_project(project_path)
-			return
+			return project_path
 		}
 	}
+
+	println("can't find project with id \"$id\"")
+	exit(1)
+}
+
+fn edit(id string) {
+	project_path := find_project_path_by_id(id) or { panic(err) }
+	edit_project(project_path)
+}
+
+fn complete(id string) {
+	project_path := find_project_path_by_id(id) or { panic(err) }
+	mark_as_complete(project_path)
 }
 
 fn edit_project(path string) {
 	os.system([editor(), path].join(' '))
+}
+
+fn change_project_data(path string, key string, value string) {
+	contents := os.read_file(path) or { panic(err) }
+
+	front_matter_start := contents.index('---') or {
+		panic("can't find any front matter for file $path")
+	}
+	front_matter_end := contents.index_after('---', front_matter_start + 1)
+
+	front_matter := contents[front_matter_start + 3..front_matter_end].trim_space()
+
+	mut new_front_matter := []string{}
+
+	for line in front_matter.split_into_lines() {
+		current_key := line.all_before('=')
+		if current_key != key {
+			new_front_matter << line
+		}
+	}
+
+	new_front_matter << '$key=$value'
+
+	new_contents := [
+		contents[0..front_matter_start + 3],
+		new_front_matter.join('\n'),
+		contents[front_matter_end..],
+	].join('\n')
+
+	safe_write_file(path, new_contents)
+}
+
+fn safe_write_file(path string, contents string) {
+	tmp := path + '.tmp'
+
+	mut file := os.create(tmp) or { panic(err) }
+	file.write_string(contents) or { panic(err) }
+	file.close()
+
+	if os.is_file(path) {
+		os.rm(path) or { panic(err) }
+	}
+	os.mv(tmp, path) or { panic(err) }
+}
+
+fn mark_as_complete(project_path string) {
+	change_project_data(project_path, 'complete', 'true')
 }
 
 fn editor() string {
@@ -135,6 +196,8 @@ fn read_project(path string) Project {
 			project.name = value
 		} else if key == 'date' {
 			project.date = time.parse(value) or { panic(err) }
+		} else if key == 'complete' {
+			project.complete = string_to_bool(value)
 		}
 	}
 
@@ -198,6 +261,17 @@ fn generate_slug(name string) string {
 	return slug
 }
 
+fn string_to_bool(s string) bool {
+	return s == 'true'
+}
+
+fn list_incomplete_project_paths() []string {
+	return list_project_paths().filter(fn (path string) bool {
+		project := read_project(path)
+		return !project.complete
+	})
+}
+
 fn list_project_paths() []string {
 	file_type := 'md'
 
@@ -217,6 +291,9 @@ fn main() {
 			return
 		} else if args[0] == 'list' {
 			list()
+			return
+		} else if args[0] == 'complete' && args.len == 2 {
+			complete(args[1])
 			return
 		}
 	}
