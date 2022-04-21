@@ -31,14 +31,12 @@ fn list() {
 }
 
 fn edit(id string) {
-	path := find_project_path_by_id(id) or { panic(err) }
-	project := load_project(path)
+	project := find_project(id) or { panic(err) }
 	project.open_in_editor()
 }
 
 fn complete(id string) {
-	path := find_project_path_by_id(id) or { panic(err) }
-	mut project := load_project(path)
+	mut project := find_project(id) or { panic(err) }
 	project.complete = true
 	project.save()
 }

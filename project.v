@@ -115,13 +115,13 @@ fn retrieve_front_matter(path string) ?string {
 	return front_matter.join('\n')
 }
 
-fn find_project_path_by_id(id string) ?string {
+fn find_project(id string) ?Project {
 	project_paths := list_incomplete_project_paths()
 
 	for index, project_path in project_paths {
 		number := index + 1
 		if number.str() == id {
-			return project_path
+			return load_project(project_path)
 		}
 	}
 
