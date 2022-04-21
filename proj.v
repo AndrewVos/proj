@@ -1,7 +1,6 @@
 module main
 
 import os
-import time
 
 fn help() {
 	println('proj')
@@ -12,18 +11,9 @@ fn help() {
 }
 
 fn create(name string) {
-	path := new_project_path(name) or {
-		panic("Couldn't generate a project file path because all options already exist")
-	}
-
-	date := time.now().format_ss()
-
-	mut f := os.create(path) or { panic(err) }
-	f.write_string(['---', 'name=$name', 'date=$date', '---', '', '# $name', '', '## Description',
-		'', '## Tasks', '', '- [ ] First'].join('\n')) or { panic(err) }
-	f.close()
-
-	open_in_editor(path)
+	project := build_new_project(name)
+	project.save()
+	project.open_in_editor()
 }
 
 fn list() {
@@ -42,12 +32,13 @@ fn list() {
 
 fn edit(id string) {
 	path := find_project_path_by_id(id) or { panic(err) }
-	open_in_editor(path)
+	project := new_project(path)
+	project.open_in_editor()
 }
 
 fn complete(id string) {
-	project_path := find_project_path_by_id(id) or { panic(err) }
-	mut project := new_project(project_path)
+	path := find_project_path_by_id(id) or { panic(err) }
+	mut project := new_project(path)
 	project.complete = true
 	project.save()
 }

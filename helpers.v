@@ -49,10 +49,6 @@ fn editor() string {
 	return os.getenv_opt('EDITOR') or { panic(err) }
 }
 
-fn open_in_editor(path string) {
-	os.system([editor(), path].join(' '))
-}
-
 fn right_pad(s string, width int) string {
 	mut new_string := s
 

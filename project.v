@@ -6,10 +6,10 @@ import os
 struct Project {
 mut:
 	path     string
-	contents string
 	name     string
 	date     time.Time
 	complete bool
+	contents string
 }
 
 fn new_project(path string) Project {
@@ -37,6 +37,20 @@ fn new_project(path string) Project {
 	return project
 }
 
+fn build_new_project(name string) Project {
+	path := new_project_path(name) or {
+		panic("Couldn't generate a project file path because all options already exist")
+	}
+
+	return Project{
+		path: path
+		name: name
+		date: time.now()
+		complete: false
+		contents: ['# $name', '', '## Description', '', '## Tasks', '', '- [ ] First Task'].join('\n')
+	}
+}
+
 fn (project Project) save() {
 	date := project.date.format_ss()
 
@@ -48,6 +62,10 @@ fn (project Project) save() {
 		'---',
 		project.contents,
 	].join('\n'))
+}
+
+fn (project Project) open_in_editor() {
+	os.system([editor(), project.path].join(' '))
 }
 
 fn safe_write_file(path string, contents string) {
