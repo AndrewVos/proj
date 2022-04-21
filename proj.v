@@ -2,6 +2,7 @@ import os
 import regex
 import encoding.utf8
 import time
+import math
 
 struct Project {
 mut:
@@ -19,10 +20,47 @@ fn help() {
 fn list() {
 	project_paths := list_project_paths()
 
+	mut table := [['ID', 'Name', 'Date']]
+
 	for index, project_path in project_paths {
 		number := index + 1
 		project := read_project(project_path)
-		println('$number\t$project.name\t$project.date')
+		table << [number.str(), project.name, project.date.format_ss()]
+	}
+
+	render_table(table)
+}
+
+fn right_pad(s string, width int) string {
+	mut new_string := s
+
+	for {
+		if new_string.len >= width {
+			return new_string
+		}
+		new_string = new_string + ' '
+	}
+
+	return new_string
+}
+
+fn render_table(table [][]string) {
+	mut column_widths := map[int]int{}
+
+	for row in table {
+		for column_index, cell in row {
+			column_widths[column_index] = math.max(column_widths[column_index], cell.len)
+		}
+	}
+
+	for row in table {
+		for column_index, cell in row {
+			if column_index != 0 {
+				print(' ')
+			}
+			print(right_pad(cell, column_widths[column_index]))
+		}
+		println('')
 	}
 }
 
