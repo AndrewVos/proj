@@ -1,6 +1,7 @@
 import os
 import regex
 import encoding.utf8
+import time
 
 fn help() {
 	println('proj')
@@ -24,9 +25,11 @@ fn create(name string) {
 		panic("Couldn't generate a project file path because all options already exist")
 	}
 
+	date := time.now().format()
+
 	mut f := os.create(path) or { panic(err) }
-	f.write_string(['---', 'name=$name', '---', '', '# $name', '', '## Description', '', '## Tasks',
-		'', '- [ ] First'].join('\n')) or { panic(err) }
+	f.write_string(['---', 'name=$name', 'date=$date', '---', '', '# $name', '', '## Description',
+		'', '## Tasks', '', '- [ ] First'].join('\n')) or { panic(err) }
 	f.close()
 
 	edit_project(path)
