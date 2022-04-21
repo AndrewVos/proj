@@ -12,7 +12,7 @@ mut:
 	contents string
 }
 
-fn new_project(path string) Project {
+fn load_project(path string) Project {
 	front_matter := retrieve_front_matter(path) or { panic(err) }
 	contents := retrieve_contents(path)
 
@@ -152,7 +152,7 @@ fn new_project_path(name string) ?string {
 
 fn list_incomplete_project_paths() []string {
 	return list_project_paths().filter(fn (path string) bool {
-		project := new_project(path)
+		project := load_project(path)
 		return !project.complete
 	})
 }
