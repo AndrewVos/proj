@@ -3,6 +3,12 @@ import regex
 import encoding.utf8
 import time
 
+struct Project {
+mut:
+	name string
+	date time.Time
+}
+
 fn help() {
 	println('proj')
 	println('  Usage: proj create "Project Name"')
@@ -15,8 +21,8 @@ fn list() {
 
 	for index, project_path in project_paths {
 		number := index + 1
-		name := read_project_name(project_path) or { continue }
-		println('$number\t$name')
+		project := read_project(project_path)
+		println('$number\t$project.name\t$project.date')
 	}
 }
 
@@ -25,7 +31,7 @@ fn create(name string) {
 		panic("Couldn't generate a project file path because all options already exist")
 	}
 
-	date := time.now().format()
+	date := time.now().format_ss()
 
 	mut f := os.create(path) or { panic(err) }
 	f.write_string(['---', 'name=$name', 'date=$date', '---', '', '# $name', '', '## Description',
@@ -78,20 +84,23 @@ fn retrieve_front_matter(path string) ?string {
 	return front_matter.join('\n')
 }
 
-fn read_project_name(path string) ?string {
+fn read_project(path string) Project {
 	front_matter := retrieve_front_matter(path) or { panic(err) }
 
-	for line in front_matter.split('\n') {
-		mut name_regex := regex.regex_opt(r'^name=.*$') or { panic(err) }
-		start, _ := name_regex.match_string(line)
+	mut project := Project{}
 
-		if start >= 0 {
-			seperator_index := line.index('=') or { panic(err) }
-			return line[seperator_index + 1..]
+	for line in front_matter.split('\n') {
+		key := line.all_before('=')
+		value := line.all_after('=')
+
+		if key == 'name' {
+			project.name = value
+		} else if key == 'date' {
+			project.date = time.parse(value) or { panic(err) }
 		}
 	}
 
-	return none
+	return project
 }
 
 fn new_project_path(name string) ?string {
