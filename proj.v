@@ -28,7 +28,7 @@ fn create(name string) {
 	f.write_string(['name=$name', '', '---', '', '# $name'].join('\n')) or { panic(err) }
 	f.close()
 
-	println(path)
+	edit_project(path)
 }
 
 fn edit(id string) {
@@ -37,9 +37,14 @@ fn edit(id string) {
 	for index, project_path in project_paths {
 		number := index + 1
 		if number.str() == id {
-			os.system([editor(), project_path].join(' '))
+			edit_project(project_path)
+			return
 		}
 	}
+}
+
+fn edit_project(path string) {
+	os.system([editor(), path].join(' '))
 }
 
 fn editor() string {
