@@ -116,12 +116,12 @@ fn retrieve_front_matter(path string) ?string {
 }
 
 fn find_project(id string) ?Project {
-	project_paths := list_incomplete_project_paths()
+	projects := list_projects()
 
-	for index, project_path in project_paths {
+	for index, project in projects {
 		number := index + 1
 		if number.str() == id {
-			return load_project(project_path)
+			return project
 		}
 	}
 
@@ -150,15 +150,13 @@ fn new_project_path(name string) ?string {
 	return none
 }
 
-fn list_incomplete_project_paths() []string {
-	return list_project_paths().filter(fn (path string) bool {
-		project := load_project(path)
-		return !project.complete
-	})
-}
-
-fn list_project_paths() []string {
+fn list_projects() []Project {
 	file_type := 'md'
 
-	return os.glob(os.join_path(os.home_dir(), '.projects', '*.' + file_type)) or { return [] }
+	project_paths := os.glob(os.join_path(os.home_dir(), '.projects', '*.' + file_type)) or {
+		return []
+	}
+	return project_paths.map(fn (path string) Project {
+		return load_project(path)
+	})
 }

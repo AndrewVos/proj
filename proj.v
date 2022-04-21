@@ -6,6 +6,7 @@ fn help() {
 	println('proj')
 	println('  Usage: proj create "Project Name"')
 	println('  Usage: proj list')
+	println('  Usage: proj list-all')
 	println('  Usage: proj edit <id>')
 	println('  Usage: proj complete <id>')
 }
@@ -17,13 +18,27 @@ fn create(name string) {
 }
 
 fn list() {
-	project_paths := list_incomplete_project_paths()
+	projects := list_projects()
 
 	mut table := [['ID', 'Name', 'Date']]
 
-	for index, project_path in project_paths {
+	for index, project in projects {
+		if !project.complete {
+			number := index + 1
+			table << [number.str(), project.name, project.date.format_ss()]
+		}
+	}
+
+	render_table(table)
+}
+
+fn list_all() {
+	projects := list_projects()
+
+	mut table := [['ID', 'Name', 'Date']]
+
+	for index, project in projects {
 		number := index + 1
-		project := load_project(project_path)
 		table << [number.str(), project.name, project.date.format_ss()]
 	}
 
@@ -54,6 +69,9 @@ fn main() {
 			return
 		} else if args[0] == 'list' {
 			list()
+			return
+		} else if args[0] == 'list-all' {
+			list_all()
 			return
 		} else if args[0] == 'complete' && args.len == 2 {
 			complete(args[1])
