@@ -82,14 +82,14 @@ fn safe_write_file(path string, contents string) {
 }
 
 fn retrieve_contents(path string) string {
-	file_contents := os.read_file(path) or { panic(err) }
+	contents := os.read_file(path) or { panic(err) }
 
-	front_matter_start := file_contents.index('---') or {
+	front_matter_start := contents.index('---') or {
 		panic("can't find any front matter for file $path")
 	}
-	front_matter_end := file_contents.index_after('---', front_matter_start + 1)
+	front_matter_end := contents.index_after('---', front_matter_start + 1)
 
-	return file_contents[front_matter_end + 3..].trim_space()
+	return contents[front_matter_end + 3..].trim_space()
 }
 
 fn retrieve_front_matter(path string) ?string {
