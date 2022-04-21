@@ -17,29 +17,16 @@ fn create(name string) {
 	project.open_in_editor()
 }
 
-fn list() {
+fn list(all bool) {
 	projects := list_projects()
-
-	mut table := [['ID', 'Name', 'Date']]
+	mut table := [][]string{}
 
 	for index, project in projects {
-		if !project.complete {
+		if all || !project.complete {
 			number := index + 1
-			table << [number.str(), project.name, project.date.format_ss()]
+			table << [complete_icon(project.complete), number.str(), project.name,
+				project.date.format_ss()]
 		}
-	}
-
-	render_table(table)
-}
-
-fn list_all() {
-	projects := list_projects()
-
-	mut table := [['ID', 'Name', 'Date']]
-
-	for index, project in projects {
-		number := index + 1
-		table << [number.str(), project.name, project.date.format_ss()]
 	}
 
 	render_table(table)
@@ -68,10 +55,10 @@ fn main() {
 			edit(args[1])
 			return
 		} else if args[0] == 'list' {
-			list()
+			list(false)
 			return
 		} else if args[0] == 'list-all' {
-			list_all()
+			list(true)
 			return
 		} else if args[0] == 'complete' && args.len == 2 {
 			complete(args[1])
