@@ -25,7 +25,8 @@ fn create(name string) {
 	}
 
 	mut f := os.create(path) or { panic(err) }
-	f.write_string(['name=$name', '', '---', '', '# $name'].join('\n')) or { panic(err) }
+	f.write_string(['---', 'name=$name', '---', '', '# $name', '', '## Description', '', '## Tasks',
+		'', '- [ ] First'].join('\n')) or { panic(err) }
 	f.close()
 
 	edit_project(path)
@@ -55,10 +56,19 @@ fn retrieve_front_matter(path string) ?string {
 	lines := os.read_lines(path) or { panic(err) }
 	mut front_matter := []string{}
 
+	mut started := false
+
 	for line in lines {
-		if line.trim_space() == '---' {
-			break
+		is_border := line.trim_space() == '---'
+
+		if is_border {
+			if !started {
+				started = true
+			} else {
+				break
+			}
 		}
+
 		front_matter << line
 	}
 
