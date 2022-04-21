@@ -49,13 +49,6 @@ fn editor() string {
 	return os.getenv_opt('EDITOR') or { panic(err) }
 }
 
-fn complete_icon(complete bool) string {
-	if complete {
-		return '[x]'
-	}
-	return '[ ]'
-}
-
 fn right_pad(s string, width int) string {
 	mut new_string := s
 

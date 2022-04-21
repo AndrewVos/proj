@@ -1,6 +1,7 @@
 module main
 
 import os
+import term
 
 fn help() {
 	println('proj')
@@ -24,8 +25,14 @@ fn list(all bool) {
 	for index, project in projects {
 		if all || !project.complete {
 			number := index + 1
-			table << [complete_icon(project.complete), number.str(), project.name,
-				project.date.format_ss()]
+
+			mut complete_icon := term.colorize(term.red, '[ ]')
+			if !project.complete {
+				complete_icon = term.colorize(term.green, '[x]')
+			}
+
+			table << [term.colorize(term.blue, '#$number'), complete_icon, project.name,
+				term.colorize(term.yellow, project.date.format_ss())]
 		}
 	}
 
