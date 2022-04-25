@@ -45,9 +45,9 @@ fn list(all bool) {
 		if all || !project.complete {
 			number := index + 1
 
-			mut complete_icon := term.colorize(term.red, '[ ]')
+			mut complete_icon := term.colorize(term.green, '[x]')
 			if !project.complete {
-				complete_icon = term.colorize(term.green, '[x]')
+				complete_icon = term.colorize(term.red, '[ ]')
 			}
 
 			table << [term.colorize(term.blue, '#$number'), complete_icon, project.name,
