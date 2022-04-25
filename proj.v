@@ -2,6 +2,7 @@ module main
 
 import os
 import term
+import strconv
 
 fn help() {
 	tool_name := term.colorize(term.green, 'proj')
@@ -41,16 +42,14 @@ fn list(all bool) {
 	projects := list_projects()
 	mut table := [][]string{}
 
-	for index, project in projects {
+	for project in projects {
 		if all || !project.complete {
-			number := index + 1
-
 			mut complete_icon := term.colorize(term.green, '[x]')
 			if !project.complete {
 				complete_icon = term.colorize(term.red, '[ ]')
 			}
 
-			table << [term.colorize(term.blue, '#$number'), complete_icon, project.name,
+			table << [term.colorize(term.blue, '#$project.id'), complete_icon, project.name,
 				term.colorize(term.yellow, project.date.format_ss())]
 		}
 	}
@@ -58,18 +57,18 @@ fn list(all bool) {
 	render_table(table)
 }
 
-fn edit(id string) {
+fn edit(id int) {
 	project := find_project(id) or { panic(err) }
 	project.open_in_editor()
 }
 
-fn complete(id string) {
+fn complete(id int) {
 	mut project := find_project(id) or { panic(err) }
 	project.complete = true
 	project.save()
 }
 
-fn incomplete(id string) {
+fn incomplete(id int) {
 	mut project := find_project(id) or { panic(err) }
 	project.complete = false
 	project.save()
@@ -84,7 +83,8 @@ fn main() {
 			create(args[1])
 			return
 		} else if args[0] == 'edit' && args.len == 2 {
-			edit(args[1])
+			id := strconv.atoi(args[1]) or { panic(err) }
+			edit(id)
 			return
 		} else if args[0] == 'list' {
 			list(false)
@@ -93,10 +93,12 @@ fn main() {
 			list(true)
 			return
 		} else if args[0] == 'complete' && args.len == 2 {
-			complete(args[1])
+			id := strconv.atoi(args[1]) or { panic(err) }
+			complete(id)
 			return
 		} else if args[0] == 'incomplete' && args.len == 2 {
-			incomplete(args[1])
+			id := strconv.atoi(args[1]) or { panic(err) }
+			incomplete(id)
 			return
 		}
 	}

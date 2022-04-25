@@ -9,7 +9,7 @@ fn string_to_bool(s string) bool {
 	return s == 'true'
 }
 
-fn generate_slug(name string) string {
+fn build_slug(name string) string {
 	mut slug := name
 
 	slug = slug.to_lower()

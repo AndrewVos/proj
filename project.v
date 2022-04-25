@@ -2,9 +2,12 @@ module main
 
 import time
 import os
+import strconv
+import math
 
 struct Project {
 mut:
+	id       int
 	path     string
 	name     string
 	date     time.Time
@@ -25,7 +28,9 @@ fn load_project(path string) Project {
 		key := line.all_before('=')
 		value := line.all_after('=')
 
-		if key == 'name' {
+		if key == 'id' {
+			project.id = strconv.atoi(value) or { panic(err) }
+		} else if key == 'name' {
 			project.name = value
 		} else if key == 'date' {
 			project.date = time.parse(value) or { panic(err) }
@@ -42,7 +47,10 @@ fn build_new_project(name string) Project {
 		panic("Couldn't generate a project file path because all options already exist")
 	}
 
+	id := new_project_id()
+
 	return Project{
+		id: id
 		path: path
 		name: name
 		date: time.now()
@@ -56,16 +64,28 @@ fn (project Project) save() {
 
 	safe_write_file(project.path, [
 		'---',
+		'id=$project.id',
 		'name=$project.name',
 		'date=$date',
 		'complete=$project.complete',
 		'---',
+		'',
 		project.contents,
 	].join('\n'))
 }
 
 fn (project Project) open_in_editor() {
 	os.system([editor(), project.path].join(' '))
+}
+
+fn new_project_id() int {
+	mut max_id := 0
+
+	for project in list_projects() {
+		max_id = math.max(max_id, project.id)
+	}
+
+	return max_id + 1
 }
 
 fn safe_write_file(path string, contents string) {
@@ -115,12 +135,9 @@ fn retrieve_front_matter(path string) ?string {
 	return front_matter.join('\n')
 }
 
-fn find_project(id string) ?Project {
-	projects := list_projects()
-
-	for index, project in projects {
-		number := index + 1
-		if number.str() == id {
+fn find_project(id int) ?Project {
+	for project in list_projects() {
+		if project.id == id {
 			return project
 		}
 	}
@@ -132,7 +149,7 @@ fn find_project(id string) ?Project {
 fn new_project_path(name string) ?string {
 	file_type := 'md'
 
-	slug := generate_slug(name)
+	slug := build_slug(name)
 
 	for number := 0; number < 100; number++ {
 		mut file_name := [slug, '.', file_type].join('')
