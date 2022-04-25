@@ -69,6 +69,12 @@ fn complete(id string) {
 	project.save()
 }
 
+fn incomplete(id string) {
+	mut project := find_project(id) or { panic(err) }
+	project.complete = false
+	project.save()
+}
+
 fn main() {
 	mut args := []string{}
 	if os.args.len > 1 {
@@ -88,6 +94,9 @@ fn main() {
 			return
 		} else if args[0] == 'complete' && args.len == 2 {
 			complete(args[1])
+			return
+		} else if args[0] == 'incomplete' && args.len == 2 {
+			incomplete(args[1])
 			return
 		}
 	}
