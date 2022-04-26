@@ -35,7 +35,6 @@ fn help() {
 fn create(name string) {
 	project := build_new_project(name)
 	project.save()
-	project.open_in_editor()
 }
 
 fn list(all bool) {
