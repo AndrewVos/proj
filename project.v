@@ -173,7 +173,10 @@ fn list_projects() []Project {
 	project_paths := os.glob(os.join_path(os.home_dir(), '.projects', '*.' + file_type)) or {
 		return []
 	}
-	return project_paths.map(fn (path string) Project {
+	mut projects := project_paths.map(fn (path string) Project {
 		return load_project(path)
 	})
+	projects.sort(a.date < b.date)
+
+	return projects
 }
