@@ -78,6 +78,10 @@ fn (project Project) open_in_editor() {
 	os.system([editor(), project.path].join(' '))
 }
 
+fn (project Project) show() {
+	os.system(['glow', project.path].join(' '))
+}
+
 fn new_project_id() int {
 	mut max_id := 0
 

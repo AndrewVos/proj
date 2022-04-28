@@ -14,6 +14,7 @@ fn help() {
 		['create', '"Project Name"'],
 		['list'],
 		['list-all'],
+		['show', '<id>'],
 		['edit', '<id>'],
 		['complete', '<id>'],
 	]
@@ -73,6 +74,11 @@ fn incomplete(id int) {
 	project.save()
 }
 
+fn show(id int) {
+	mut project := find_project(id) or { panic(err) }
+	project.show()
+}
+
 fn main() {
 	mut args := []string{}
 	if os.args.len > 1 {
@@ -98,6 +104,10 @@ fn main() {
 		} else if args[0] == 'incomplete' && args.len == 2 {
 			id := strconv.atoi(args[1]) or { panic(err) }
 			incomplete(id)
+			return
+		} else if args[0] == 'show' && args.len == 2 {
+			id := strconv.atoi(args[1]) or { panic(err) }
+			show(id)
 			return
 		}
 	}
