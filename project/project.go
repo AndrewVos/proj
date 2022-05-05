@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/gosimple/slug"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"sort"
@@ -285,4 +286,30 @@ func (p Project) Save() error {
 	}, "\n")
 
 	return os.WriteFile(p.Path, []byte(contents), 0644)
+}
+
+func (p Project) OpenInEditor() error {
+	editor := os.Getenv("EDITOR")
+
+	cmd := exec.Command(editor, p.Path)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func Find(id int) (Project, error) {
+	projects, err := ListProjects()
+
+	if err != nil {
+		return Project{}, err
+	}
+
+	for _, project := range projects {
+		if project.ID == id {
+			return project, nil
+		}
+	}
+
+	return Project{}, errors.New("can't find project with id \"" + strconv.Itoa(id) + "\"")
 }
