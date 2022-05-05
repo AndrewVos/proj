@@ -313,3 +313,11 @@ func Find(id int) (Project, error) {
 
 	return Project{}, errors.New("can't find project with id \"" + strconv.Itoa(id) + "\"")
 }
+
+func (p Project) Show() error {
+	cmd := exec.Command("glow", p.Path)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
