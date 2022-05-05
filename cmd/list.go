@@ -5,23 +5,43 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/AndrewVos/proj/project"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"log"
+	"os"
+	"strconv"
 )
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "List projects",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
+		projects, err := project.ListProjects()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetBorder(false)
+		table.SetAutoWrapText(false)
+		table.SetCenterSeparator("")
+		table.SetColumnSeparator("")
+
+		for _, project := range projects {
+			if !project.Complete {
+				completeIcon := "[ ]"
+
+				table.Append(
+					[]string{"#" + strconv.Itoa(project.ID), completeIcon, project.Name,
+						project.Date.Format("2006-01-02 15:04:05"),
+					},
+				)
+			}
+		}
+
+		table.Render()
 	},
 }
 
