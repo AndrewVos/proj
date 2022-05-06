@@ -1,19 +1,15 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
 	"github.com/AndrewVos/proj/project"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"golang.org/x/sys/unix"
 	"log"
 	"os"
 	"strconv"
 )
 
-// listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List projects",
@@ -23,38 +19,58 @@ var listCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetBorder(false)
-		table.SetAutoWrapText(false)
-		table.SetCenterSeparator("")
-		table.SetColumnSeparator("")
-
-		for _, project := range projects {
-			if !project.Complete {
-				completeIcon := "[ ]"
-
-				table.Append(
-					[]string{"#" + strconv.Itoa(project.ID), completeIcon, project.Name,
-						project.Date.Format("2006-01-02 15:04:05"),
-					},
-				)
-			}
-		}
-
-		table.Render()
+		printProjects(projects, false)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(listCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+func isTTY() bool {
+	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
+	return err == nil
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
+func printProjects(projects []project.Project, all bool) {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetBorder(false)
+	table.SetAutoWrapText(false)
+	table.SetCenterSeparator("")
+	table.SetColumnSeparator("")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	for _, project := range projects {
+		if !project.Complete || all {
+			completeIcon := "[ ]"
+			completeColour := tablewriter.Colors{tablewriter.Normal, tablewriter.FgRedColor}
+
+			if project.Complete {
+				completeIcon = "[x]"
+				completeColour = tablewriter.Colors{tablewriter.Normal, tablewriter.FgGreenColor}
+			}
+
+			cells := []string{
+				"#" + strconv.Itoa(project.ID),
+				completeIcon,
+				project.Name,
+				project.Date.Format("2006-01-02 15:04:05"),
+			}
+
+			if isTTY() {
+				table.Rich(
+					cells,
+					[]tablewriter.Colors{
+						tablewriter.Colors{tablewriter.Normal, tablewriter.FgBlueColor},
+						completeColour,
+						tablewriter.Colors{},
+						tablewriter.Colors{tablewriter.Normal, tablewriter.FgYellowColor},
+					},
+				)
+			} else {
+				table.Append(cells)
+			}
+		}
+	}
+
+	table.Render()
 }
