@@ -64,7 +64,7 @@ func printProjects(projects []project.Project, all bool) {
 				completionStatus,
 				completeIcon,
 				project.Name,
-				project.Date.Format("2006-01-02 15:04:05"),
+				project.Date.Format("2006-01-02 15:04"),
 			}
 
 			if isTTY() {
