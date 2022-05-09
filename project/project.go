@@ -15,12 +15,14 @@ import (
 )
 
 type Project struct {
-	ID       int
-	Path     string
-	Name     string
-	Date     time.Time
-	Complete bool
-	Contents string
+	ID            int
+	Path          string
+	Name          string
+	Date          time.Time
+	Complete      bool
+	Contents      string
+	TasksTotal    int
+	TasksComplete int
 }
 
 func NewProject(name string) (Project, error) {
@@ -182,6 +184,15 @@ func LoadProject(path string) (Project, error) {
 			project.Date = date
 		} else if key == "complete" {
 			project.Complete = stringToBool(value)
+		}
+	}
+
+	for _, line := range strings.Split(contents, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), "- [ ]") {
+			project.TasksTotal += 1
+		} else if strings.HasPrefix(strings.TrimSpace(line), "- [x]") {
+			project.TasksTotal += 1
+			project.TasksComplete += 1
 		}
 	}
 

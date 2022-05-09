@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/AndrewVos/proj/project"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -49,8 +50,18 @@ func printProjects(projects []project.Project, all bool) {
 				completeColour = tablewriter.Colors{tablewriter.Normal, tablewriter.FgGreenColor}
 			}
 
+			completionStatus := ""
+			checklistCompletionColour := tablewriter.Colors{tablewriter.Normal, tablewriter.FgRedColor}
+			if project.TasksTotal != 0 {
+				completionStatus = fmt.Sprintf("%v/%v", project.TasksComplete, project.TasksTotal)
+				if project.TasksComplete == project.TasksTotal {
+					checklistCompletionColour = tablewriter.Colors{tablewriter.Normal, tablewriter.FgGreenColor}
+				}
+			}
+
 			cells := []string{
 				"#" + strconv.Itoa(project.ID),
+				completionStatus,
 				completeIcon,
 				project.Name,
 				project.Date.Format("2006-01-02 15:04:05"),
@@ -61,6 +72,7 @@ func printProjects(projects []project.Project, all bool) {
 					cells,
 					[]tablewriter.Colors{
 						tablewriter.Colors{tablewriter.Normal, tablewriter.FgBlueColor},
+						checklistCompletionColour,
 						completeColour,
 						tablewriter.Colors{},
 						tablewriter.Colors{tablewriter.Normal, tablewriter.FgYellowColor},
