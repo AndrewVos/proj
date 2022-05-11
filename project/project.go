@@ -3,6 +3,7 @@ package project
 import (
 	"bufio"
 	"errors"
+	"github.com/AndrewVos/proj/markdown"
 	"github.com/gosimple/slug"
 	"os"
 	"os/exec"
@@ -23,6 +24,22 @@ type Project struct {
 	Contents      string
 	TasksTotal    int
 	TasksComplete int
+}
+
+func (p Project) Execute() error {
+	snippets := markdown.FindSnippets(p.Contents)
+
+	for _, snippet := range snippets {
+		if snippet.Lang == "ruby --run" {
+			cmd := exec.Command("ruby", "-e", snippet.Content)
+			cmd.Stdin = os.Stdin
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			return cmd.Run()
+		}
+	}
+
+	return nil
 }
 
 func NewProject(name string) (Project, error) {
