@@ -14,6 +14,7 @@ import (
 
 var Relative bool
 var All bool
+var Percentage bool
 
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -31,6 +32,7 @@ var listCmd = &cobra.Command{
 func init() {
 	listCmd.Flags().BoolVarP(&All, "all", "a", false, "list all projects")
 	listCmd.Flags().BoolVarP(&Relative, "relative", "r", false, "relative time output")
+	listCmd.Flags().BoolVarP(&Percentage, "percentage", "p", false, "show percentage completion")
 
 	rootCmd.AddCommand(listCmd)
 }
@@ -51,38 +53,59 @@ type ChecklistCompletionCell struct {
 	Project project.Project
 }
 
-func (c ChecklistCompletionCell) Width() int {
-	if c.Project.TasksTotal != 0 {
-		result := fmt.Sprintf("%v/%v", c.Project.TasksComplete, c.Project.TasksTotal)
-		return len(result)
+func (c ChecklistCompletionCell) percentage() int {
+	if c.Project.TasksComplete == 0 {
+		return 0
 	}
-	return 0
+	return c.Project.TasksComplete / c.Project.TasksTotal * 100
+}
+
+func (c ChecklistCompletionCell) Width() int {
+	if Percentage {
+		return len(strconv.Itoa(c.percentage())) + 1
+	} else {
+		if c.Project.TasksTotal != 0 {
+			result := fmt.Sprintf("%v/%v", c.Project.TasksComplete, c.Project.TasksTotal)
+			return len(result)
+		}
+		return 0
+	}
 }
 
 func (c ChecklistCompletionCell) Render() {
-	if c.Project.TasksTotal != 0 {
-		result := fmt.Sprintf("%v/%v", c.Project.TasksComplete, c.Project.TasksTotal)
+	if Percentage {
 		if c.Project.TasksComplete == c.Project.TasksTotal {
-			color.New(color.FgGreen).Printf(result)
+			color.New(color.FgGreen).Printf("%v", c.percentage())
+			color.New(color.FgGreen).Print("%")
 		} else {
-			color.New(color.FgRed).Printf(result)
+			color.New(color.FgRed).Printf("%v", c.percentage())
+			color.New(color.FgRed).Print("%")
+		}
+	} else {
+		if c.Project.TasksTotal != 0 {
+			result := fmt.Sprintf("%v/%v", c.Project.TasksComplete, c.Project.TasksTotal)
+			if c.Project.TasksComplete == c.Project.TasksTotal {
+				color.New(color.FgGreen).Printf(result)
+			} else {
+				color.New(color.FgRed).Printf(result)
+			}
 		}
 	}
 }
 
-type CompleteStatusCell struct {
+type CheckedCompleteStatusCell struct {
 	Project project.Project
 }
 
-func (c CompleteStatusCell) Width() int {
-	return 3
+func (c CheckedCompleteStatusCell) Width() int {
+	return 1
 }
 
-func (c CompleteStatusCell) Render() {
+func (c CheckedCompleteStatusCell) Render() {
 	if c.Project.Complete {
-		color.New(color.FgGreen).Printf("[x]")
+		color.New(color.FgGreen).Printf("✓")
 	} else {
-		color.New(color.FgRed).Printf("[ ]")
+		color.New(color.FgRed).Printf("✗")
 	}
 }
 
@@ -105,6 +128,18 @@ func (c DateStatusCell) Render() {
 	color.New(color.FgYellow).Printf(c.formatDate())
 }
 
+type TitleCell struct {
+	Project project.Project
+}
+
+func (c TitleCell) Width() int {
+	return len(c.Project.Name)
+}
+
+func (c TitleCell) Render() {
+	fmt.Printf(c.Project.Name)
+}
+
 func printProjects(projects []project.Project) {
 	t := table.New()
 
@@ -112,9 +147,9 @@ func printProjects(projects []project.Project) {
 		if !project.Complete || All {
 			cells := []table.Cell{
 				IdCell{project},
+				CheckedCompleteStatusCell{project},
+				TitleCell{project},
 				ChecklistCompletionCell{project},
-				CompleteStatusCell{project},
-				table.SimpleCell{project.Name},
 				DateStatusCell{project},
 			}
 

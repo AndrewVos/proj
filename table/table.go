@@ -59,7 +59,6 @@ func (t *Table) Print() {
 
 			cell.Render()
 			fmt.Printf("%-"+strconv.Itoa(extraPadding)+"s", "")
-			fmt.Printf(" ")
 		}
 		fmt.Println("")
 	}
