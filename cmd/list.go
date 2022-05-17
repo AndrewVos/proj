@@ -5,7 +5,6 @@ import (
 	"github.com/AndrewVos/proj/project"
 	"github.com/AndrewVos/proj/table"
 	"github.com/fatih/color"
-	"github.com/justincampbell/timeago"
 	"github.com/spf13/cobra"
 	"log"
 	"strconv"
@@ -30,7 +29,7 @@ var listCmd = &cobra.Command{
 
 func init() {
 	listCmd.Flags().BoolVarP(&All, "all", "a", false, "list all projects")
-	listCmd.Flags().BoolVarP(&Date, "date", "d", false, "show full date")
+	listCmd.Flags().BoolVarP(&Date, "date", "d", false, "print an RFC3339 date")
 
 	rootCmd.AddCommand(listCmd)
 }
@@ -78,9 +77,26 @@ type DateStatusCell struct {
 
 func (c DateStatusCell) formatDate() string {
 	if Date {
-		return c.Project.Date.Format("2006-01-02 15:04")
+		return c.Project.Date.Format(time.RFC3339)
+	} else if timesAreSameDay(time.Now(), c.Project.Date) {
+		return c.Project.Date.Format("15:04")
+	} else if timesAreSameYear(time.Now(), c.Project.Date) {
+		return c.Project.Date.Format("2 Jan")
+	} else {
+		return c.Project.Date.Format("02-01-2006")
 	}
-	return timeago.FromDuration(time.Since(c.Project.Date)) + " old"
+}
+
+func timesAreSameDay(date1, date2 time.Time) bool {
+	y1, m1, d1 := date1.Date()
+	y2, m2, d2 := date2.Date()
+	return y1 == y2 && m1 == m2 && d1 == d2
+}
+
+func timesAreSameYear(date1, date2 time.Time) bool {
+	y1, _, _ := date1.Date()
+	y2, _, _ := date2.Date()
+	return y1 == y2
 }
 
 func (c DateStatusCell) Width() int {

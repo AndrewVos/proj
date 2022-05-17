@@ -194,7 +194,7 @@ func LoadProject(path string) (Project, error) {
 		} else if key == "name" {
 			project.Name = value
 		} else if key == "date" {
-			date, err := time.Parse("2006-01-02 15:04:05", value)
+			date, err := time.Parse(time.RFC3339, value)
 			if err != nil {
 				return Project{}, err
 			}
@@ -295,7 +295,7 @@ func ReadLines(path string) ([]string, error) {
 }
 
 func (p Project) Save() error {
-	date := p.Date.Format("2006-01-02 15:04:05")
+	date := p.Date.Format(time.RFC3339)
 
 	complete := "true"
 	if !p.Complete {

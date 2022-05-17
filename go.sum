@@ -17,10 +17,6 @@ github.com/gosimple/unidecode v1.0.1 h1:hZzFTMMqSswvf0LBJZCZgThIZrpDHFXux9KeGmn6
 github.com/gosimple/unidecode v1.0.1/go.mod h1:CP0Cr1Y1kogOtx0bJblKzsVWrqYaqfNOnHzpgWw4Awc=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
-github.com/justincampbell/bigduration v0.0.0-20160531141349-e45bf03c0666 h1:abLciEiilfMf19Q1TFWDrp9j5z5one60dnnpvc6eabg=
-github.com/justincampbell/bigduration v0.0.0-20160531141349-e45bf03c0666/go.mod h1:xqGOmDZzLOG7+q/CgsbXv10g4tgPsbjhmAxyaTJMvis=
-github.com/justincampbell/timeago v0.0.0-20160528003754-027f40306f1d h1:qtCcYJK2bebPXEC8Wy+enYxQqmWnT6jlVTHnDGpwvkc=
-github.com/justincampbell/timeago v0.0.0-20160528003754-027f40306f1d/go.mod h1:U7FWcK1jzZJnYuSnxP6efX3ZoHbK1CEpD0ThYyGNPNI=
 github.com/mattn/go-colorable v0.1.9 h1:sqDoxXbdeALODt0DAeJCVp38ps9ZogZEAXjus69YV3U=
 github.com/mattn/go-colorable v0.1.9/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
 github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=

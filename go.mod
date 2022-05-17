@@ -6,7 +6,6 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/golang-commonmark/markdown v0.0.0-20180910011815-a8f139058164
 	github.com/gosimple/slug v1.12.0
-	github.com/justincampbell/timeago v0.0.0-20160528003754-027f40306f1d
 	github.com/spf13/cobra v1.4.0
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171
 )
@@ -18,7 +17,6 @@ require (
 	github.com/golang-commonmark/puny v0.0.0-20180910110745-050be392d8b8 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/justincampbell/bigduration v0.0.0-20160531141349-e45bf03c0666 // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/opennota/wd v0.0.0-20180911144301-b446539ab1e7 // indirect
