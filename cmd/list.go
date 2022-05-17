@@ -125,7 +125,7 @@ func (c DateStatusCell) Width() int {
 }
 
 func (c DateStatusCell) Render() {
-	color.New(color.FgYellow).Printf(c.formatDate())
+	color.New(color.FgMagenta).Printf(c.formatDate())
 }
 
 type TitleCell struct {
