@@ -3,13 +3,17 @@ package cmd
 import (
 	"fmt"
 	"github.com/AndrewVos/proj/project"
+	"github.com/justincampbell/timeago"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"golang.org/x/sys/unix"
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
+
+var Relative bool
 
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -25,6 +29,8 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
+	listCmd.Flags().BoolVarP(&Relative, "relative", "r", false, "relative time output")
+
 	rootCmd.AddCommand(listCmd)
 }
 
@@ -59,12 +65,18 @@ func printProjects(projects []project.Project, all bool) {
 				}
 			}
 
+			formattedDate := project.Date.Format("2006-01-02 15:04")
+
+			if Relative {
+				formattedDate = timeago.FromDuration(time.Since(project.Date)) + " ago"
+			}
+
 			cells := []string{
 				"#" + strconv.Itoa(project.ID),
 				completionStatus,
 				completeIcon,
 				project.Name,
-				project.Date.Format("2006-01-02 15:04"),
+				formattedDate,
 			}
 
 			if isTTY() {

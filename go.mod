@@ -11,6 +11,7 @@ require (
 	github.com/gosimple/slug v1.12.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/justincampbell/timeago v0.0.0-20160528003754-027f40306f1d // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/spf13/cobra v1.4.0 // indirect
