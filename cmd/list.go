@@ -12,9 +12,8 @@ import (
 	"time"
 )
 
-var Relative bool
 var All bool
-var Percentage bool
+var Date bool
 
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -31,8 +30,7 @@ var listCmd = &cobra.Command{
 
 func init() {
 	listCmd.Flags().BoolVarP(&All, "all", "a", false, "list all projects")
-	listCmd.Flags().BoolVarP(&Relative, "relative", "r", false, "relative time output")
-	listCmd.Flags().BoolVarP(&Percentage, "percentage", "p", false, "show percentage completion")
+	listCmd.Flags().BoolVarP(&Date, "date", "d", false, "show full date")
 
 	rootCmd.AddCommand(listCmd)
 }
@@ -61,51 +59,16 @@ func (c ChecklistCompletionCell) percentage() int {
 }
 
 func (c ChecklistCompletionCell) Width() int {
-	if Percentage {
-		return len(strconv.Itoa(c.percentage())) + 1
-	} else {
-		if c.Project.TasksTotal != 0 {
-			result := fmt.Sprintf("%v/%v", c.Project.TasksComplete, c.Project.TasksTotal)
-			return len(result)
-		}
-		return 0
-	}
+	return len(strconv.Itoa(c.percentage())) + 1
 }
 
 func (c ChecklistCompletionCell) Render() {
-	if Percentage {
-		if c.Project.TasksComplete == c.Project.TasksTotal {
-			color.New(color.FgGreen).Printf("%v", c.percentage())
-			color.New(color.FgGreen).Print("%")
-		} else {
-			color.New(color.FgRed).Printf("%v", c.percentage())
-			color.New(color.FgRed).Print("%")
-		}
+	if c.Project.TasksComplete == c.Project.TasksTotal {
+		color.New(color.FgGreen).Printf("%v", c.percentage())
+		color.New(color.FgGreen).Print("%")
 	} else {
-		if c.Project.TasksTotal != 0 {
-			result := fmt.Sprintf("%v/%v", c.Project.TasksComplete, c.Project.TasksTotal)
-			if c.Project.TasksComplete == c.Project.TasksTotal {
-				color.New(color.FgGreen).Printf(result)
-			} else {
-				color.New(color.FgRed).Printf(result)
-			}
-		}
-	}
-}
-
-type CheckedCompleteStatusCell struct {
-	Project project.Project
-}
-
-func (c CheckedCompleteStatusCell) Width() int {
-	return 1
-}
-
-func (c CheckedCompleteStatusCell) Render() {
-	if c.Project.Complete {
-		color.New(color.FgGreen).Printf("✓")
-	} else {
-		color.New(color.FgRed).Printf("✗")
+		color.New(color.FgRed).Printf("%v", c.percentage())
+		color.New(color.FgRed).Print("%")
 	}
 }
 
@@ -114,10 +77,10 @@ type DateStatusCell struct {
 }
 
 func (c DateStatusCell) formatDate() string {
-	if Relative {
-		return timeago.FromDuration(time.Since(c.Project.Date)) + " ago"
+	if Date {
+		return c.Project.Date.Format("2006-01-02 15:04")
 	}
-	return c.Project.Date.Format("2006-01-02 15:04")
+	return timeago.FromDuration(time.Since(c.Project.Date)) + " old"
 }
 
 func (c DateStatusCell) Width() int {
@@ -137,21 +100,24 @@ func (c TitleCell) Width() int {
 }
 
 func (c TitleCell) Render() {
-	fmt.Printf(c.Project.Name)
+	if c.Project.Complete {
+		color.New(color.CrossedOut).Print(c.Project.Name)
+	} else {
+		fmt.Printf(c.Project.Name)
+	}
 }
 
 func printProjects(projects []project.Project) {
 	t := table.New()
 	t.SetCellStretch(2)
-	t.SetCellAlignment(4, table.AlignRight)
+	t.SetCellAlignment(3, table.AlignRight)
 
 	for _, project := range projects {
 		if !project.Complete || All {
 			cells := []table.Cell{
 				IdCell{project},
-				CheckedCompleteStatusCell{project},
-				TitleCell{project},
 				ChecklistCompletionCell{project},
+				TitleCell{project},
 				DateStatusCell{project},
 			}
 
