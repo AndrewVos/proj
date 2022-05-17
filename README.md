@@ -21,7 +21,6 @@ Available Commands:
   exec        Execute code blocks inside your project files
   help        Help about any command
   list        List projects
-  list-all    List all projects
   show        Show the project contents
 
 Flags:

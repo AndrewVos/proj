@@ -14,6 +14,7 @@ import (
 )
 
 var Relative bool
+var All bool
 
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -24,11 +25,12 @@ var listCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		printProjects(projects, false)
+		printProjects(projects)
 	},
 }
 
 func init() {
+	listCmd.Flags().BoolVarP(&All, "all", "a", false, "list all projects")
 	listCmd.Flags().BoolVarP(&Relative, "relative", "r", false, "relative time output")
 
 	rootCmd.AddCommand(listCmd)
@@ -39,7 +41,7 @@ func isTTY() bool {
 	return err == nil
 }
 
-func printProjects(projects []project.Project, all bool) {
+func printProjects(projects []project.Project) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetBorder(false)
 	table.SetAutoWrapText(false)
@@ -47,7 +49,7 @@ func printProjects(projects []project.Project, all bool) {
 	table.SetColumnSeparator("")
 
 	for _, project := range projects {
-		if !project.Complete || all {
+		if !project.Complete || All {
 			completeIcon := "[ ]"
 			completeColour := tablewriter.Colors{tablewriter.Normal, tablewriter.FgRedColor}
 
