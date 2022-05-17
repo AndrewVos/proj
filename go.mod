@@ -8,6 +8,7 @@ require (
 	github.com/gosimple/slug v1.12.0
 	github.com/justincampbell/timeago v0.0.0-20160528003754-027f40306f1d
 	github.com/spf13/cobra v1.4.0
+	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171
 )
 
 require (
@@ -23,5 +24,5 @@ require (
 	github.com/opennota/wd v0.0.0-20180911144301-b446539ab1e7 // indirect
 	github.com/russross/blackfriday v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+	golang.org/x/sys v0.0.0-20220513210249-45d2b4557a2a // indirect
 )

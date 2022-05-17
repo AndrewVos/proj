@@ -142,6 +142,8 @@ func (c TitleCell) Render() {
 
 func printProjects(projects []project.Project) {
 	t := table.New()
+	t.SetCellStretch(2)
+	t.SetCellAlignment(4, table.AlignRight)
 
 	for _, project := range projects {
 		if !project.Complete || All {
