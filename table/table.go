@@ -2,31 +2,32 @@ package table
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"strconv"
 )
 
+type Cell interface {
+	Width() int
+	Render()
+}
+
+type SimpleCell struct {
+	Value string
+}
+
+func (c SimpleCell) Width() int {
+	return len(c.Value)
+}
+
+func (c SimpleCell) Render() {
+	fmt.Printf(c.Value)
+}
+
 type Table struct {
-	Rows    [][]string
-	Colours [][]*color.Color
+	Rows [][]Cell
 }
 
-func (t *Table) Row(cells []string) {
+func (t *Table) Row(cells []Cell) {
 	t.Rows = append(t.Rows, cells)
-}
-
-func (t *Table) ColouriseRow(colours []*color.Color) {
-	t.Colours = append(t.Colours, colours)
-}
-
-func (t *Table) colourForCell(row int, cell int) *color.Color {
-	if len(t.Colours) > row {
-		if len(t.Colours[row]) > cell {
-			return t.Colours[row][cell]
-		}
-	}
-
-	return color.New()
 }
 
 func (t *Table) Print() {
@@ -41,24 +42,23 @@ func (t *Table) Print() {
 
 	for _, row := range t.Rows {
 		for i, cell := range row {
-			if len(cell) > maxColumnWidths[i] {
-				maxColumnWidths[i] = len(cell)
+			if cell.Width() > maxColumnWidths[i] {
+				maxColumnWidths[i] = cell.Width()
 			}
 		}
 	}
 
-	for rowIndex, row := range t.Rows {
+	for _, row := range t.Rows {
 		for cellIndex, cell := range row {
 			columnWidth := maxColumnWidths[cellIndex]
-
-			colour := t.colourForCell(rowIndex, cellIndex)
+			extraPadding := columnWidth - cell.Width()
 
 			if cellIndex != 0 {
 				fmt.Printf(" ")
 			}
 
-			colour.Printf("%-"+strconv.Itoa(columnWidth)+"s", cell)
-
+			cell.Render()
+			fmt.Printf("%-"+strconv.Itoa(extraPadding)+"s", "")
 			fmt.Printf(" ")
 		}
 		fmt.Println("")

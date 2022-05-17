@@ -35,54 +35,92 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 }
 
+type IdCell struct {
+	Project project.Project
+}
+
+func (c IdCell) Width() int {
+	return len("#" + strconv.Itoa(c.Project.ID))
+}
+
+func (c IdCell) Render() {
+	color.New(color.FgBlue).Printf("#" + strconv.Itoa(c.Project.ID))
+}
+
+type ChecklistCompletionCell struct {
+	Project project.Project
+}
+
+func (c ChecklistCompletionCell) Width() int {
+	if c.Project.TasksTotal != 0 {
+		result := fmt.Sprintf("%v/%v", c.Project.TasksComplete, c.Project.TasksTotal)
+		return len(result)
+	}
+	return 0
+}
+
+func (c ChecklistCompletionCell) Render() {
+	if c.Project.TasksTotal != 0 {
+		result := fmt.Sprintf("%v/%v", c.Project.TasksComplete, c.Project.TasksTotal)
+		if c.Project.TasksComplete == c.Project.TasksTotal {
+			color.New(color.FgGreen).Printf(result)
+		} else {
+			color.New(color.FgRed).Printf(result)
+		}
+	}
+}
+
+type CompleteStatusCell struct {
+	Project project.Project
+}
+
+func (c CompleteStatusCell) Width() int {
+	return 3
+}
+
+func (c CompleteStatusCell) Render() {
+	if c.Project.Complete {
+		color.New(color.FgGreen).Printf("[x]")
+	} else {
+		color.New(color.FgRed).Printf("[ ]")
+	}
+}
+
+type DateStatusCell struct {
+	Project project.Project
+}
+
+func (c DateStatusCell) formatDate() string {
+	if Relative {
+		return timeago.FromDuration(time.Since(c.Project.Date)) + " ago"
+	}
+	return c.Project.Date.Format("2006-01-02 15:04")
+}
+
+func (c DateStatusCell) Width() int {
+	return len(c.formatDate())
+}
+
+func (c DateStatusCell) Render() {
+	color.New(color.FgYellow).Printf(c.formatDate())
+}
+
 func printProjects(projects []project.Project) {
-	table := table.New()
+	t := table.New()
 
 	for _, project := range projects {
 		if !project.Complete || All {
-			completeIcon := "[ ]"
-			completeColour := color.New(color.FgRed)
-
-			if project.Complete {
-				completeIcon = "[x]"
-				completeColour = color.New(color.FgGreen)
+			cells := []table.Cell{
+				IdCell{project},
+				ChecklistCompletionCell{project},
+				CompleteStatusCell{project},
+				table.SimpleCell{project.Name},
+				DateStatusCell{project},
 			}
 
-			completionStatus := ""
-			checklistCompletionColour := color.New(color.FgRed)
-			if project.TasksTotal != 0 {
-				completionStatus = fmt.Sprintf("%v/%v", project.TasksComplete, project.TasksTotal)
-				if project.TasksComplete == project.TasksTotal {
-					checklistCompletionColour = color.New(color.FgGreen)
-				}
-			}
-
-			formattedDate := project.Date.Format("2006-01-02 15:04")
-
-			if Relative {
-				formattedDate = timeago.FromDuration(time.Since(project.Date)) + " ago"
-			}
-
-			cells := []string{
-				"#" + strconv.Itoa(project.ID),
-				completionStatus,
-				completeIcon,
-				project.Name,
-				formattedDate,
-			}
-
-			table.Row(
-				cells,
-			)
-
-			table.ColouriseRow([]*color.Color{color.New(color.FgBlue),
-				checklistCompletionColour,
-				completeColour,
-				color.New(),
-				color.New(color.FgYellow),
-			})
+			t.Row(cells)
 		}
 	}
 
-	table.Print()
+	t.Print()
 }
