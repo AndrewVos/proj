@@ -21,6 +21,7 @@ type Project struct {
 	Name          string
 	Date          time.Time
 	Complete      *time.Time
+	Cancelled     *time.Time
 	Contents      string
 	TasksTotal    int
 	TasksComplete int
@@ -204,6 +205,12 @@ func LoadProject(path string) (Project, error) {
 				return Project{}, err
 			}
 			project.Complete = &date
+		} else if key == "cancelled" {
+			date, err := time.Parse(time.RFC3339, value)
+			if err != nil {
+				return Project{}, err
+			}
+			project.Cancelled = &date
 		}
 	}
 
@@ -309,6 +316,9 @@ func (p Project) Save() error {
 
 	if p.Complete != nil {
 		rows = append(rows, "complete="+p.Complete.Format(time.RFC3339))
+	}
+	if p.Cancelled != nil {
+		rows = append(rows, "cancelled="+p.Cancelled.Format(time.RFC3339))
 	}
 	rows = append(rows, "---")
 	rows = append(rows, "")

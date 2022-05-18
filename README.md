@@ -14,7 +14,8 @@ Usage:
   proj [command]
 
 Available Commands:
-  complete    Mark a project complete
+  cancel      Mark a project as cancelled
+  complete    Mark a project as complete
   completion  Generate the autocompletion script for the specified shell
   create      Create a new project
   edit        Edit a project

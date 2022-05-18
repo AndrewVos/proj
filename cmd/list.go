@@ -117,7 +117,7 @@ func (c TitleCell) Width() int {
 }
 
 func (c TitleCell) Render() {
-	if c.Project.Complete != nil {
+	if c.Project.Complete != nil || c.Project.Cancelled != nil {
 		color.New(color.CrossedOut).Print(c.Project.Name)
 	} else {
 		fmt.Printf(c.Project.Name)
@@ -131,7 +131,7 @@ func printProjects(projects []project.Project) {
 	t.SetCellAlignment(3, table.AlignRight)
 
 	for _, project := range projects {
-		if project.Complete == nil || All {
+		if (project.Complete == nil && project.Cancelled == nil) || All {
 			cells := []table.Cell{
 				IdCell{project},
 				ChecklistCompletionCell{project},
