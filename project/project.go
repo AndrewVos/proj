@@ -20,7 +20,7 @@ type Project struct {
 	Path          string
 	Name          string
 	Date          time.Time
-	Complete      bool
+	Complete      *time.Time
 	Contents      string
 	TasksTotal    int
 	TasksComplete int
@@ -70,7 +70,6 @@ func NewProject(name string) (Project, error) {
 		Path:     path,
 		Name:     name,
 		Date:     time.Now(),
-		Complete: false,
 		Contents: strings.Join(content, "\n"),
 	}, nil
 }
@@ -200,7 +199,11 @@ func LoadProject(path string) (Project, error) {
 			}
 			project.Date = date
 		} else if key == "complete" {
-			project.Complete = stringToBool(value)
+			date, err := time.Parse(time.RFC3339, value)
+			if err != nil {
+				return Project{}, err
+			}
+			project.Complete = &date
 		}
 	}
 
@@ -297,21 +300,21 @@ func ReadLines(path string) ([]string, error) {
 func (p Project) Save() error {
 	date := p.Date.Format(time.RFC3339)
 
-	complete := "true"
-	if !p.Complete {
-		complete = "false"
-	}
-
-	contents := strings.Join([]string{
+	rows := []string{
 		"---",
 		"id=" + strconv.Itoa(p.ID),
 		"name=" + p.Name,
 		"date=" + date,
-		"complete=" + complete,
-		"---",
-		"",
-		p.Contents,
-	}, "\n")
+	}
+
+	if p.Complete != nil {
+		rows = append(rows, "complete="+p.Complete.Format(time.RFC3339))
+	}
+	rows = append(rows, "---")
+	rows = append(rows, "")
+	rows = append(rows, p.Contents)
+
+	contents := strings.Join(rows, "\n") + "\n"
 
 	return os.WriteFile(p.Path, []byte(contents), 0644)
 }

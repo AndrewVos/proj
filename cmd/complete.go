@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"strconv"
+	"time"
 )
 
 var completeCmd = &cobra.Command{
@@ -22,7 +23,8 @@ var completeCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		project.Complete = true
+		now := time.Now()
+		project.Complete = &now
 		err = project.Save()
 		if err != nil {
 			log.Fatal(err)
