@@ -50,24 +50,25 @@ type ChecklistCompletionCell struct {
 	Project project.Project
 }
 
-func (c ChecklistCompletionCell) percentage() int {
+func (c ChecklistCompletionCell) percentage() float64 {
 	if c.Project.TasksComplete == 0 {
-		return 0
+		return float64(0)
 	}
-	return c.Project.TasksComplete / c.Project.TasksTotal * 100
+	return ((float64(c.Project.TasksComplete) / float64(c.Project.TasksTotal)) * float64(100))
 }
 
 func (c ChecklistCompletionCell) Width() int {
-	return len(strconv.Itoa(c.percentage())) + 1
+	percentage := fmt.Sprintf("%.f", c.percentage()) + "%"
+	return len(percentage)
 }
 
 func (c ChecklistCompletionCell) Render() {
+	percentage := fmt.Sprintf("%.f", c.percentage()) + "%"
+
 	if c.Project.TasksComplete == c.Project.TasksTotal {
-		color.New(color.FgGreen).Printf("%v", c.percentage())
-		color.New(color.FgGreen).Print("%")
+		color.New(color.FgGreen).Print(percentage)
 	} else {
-		color.New(color.FgRed).Printf("%v", c.percentage())
-		color.New(color.FgRed).Print("%")
+		color.New(color.FgRed).Print(percentage)
 	}
 }
 
