@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+var Edit bool
+
 var createCmd = &cobra.Command{
 	Use:   "create <name>",
 	Short: "Create a new project",
@@ -19,9 +21,18 @@ var createCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		if Edit {
+			err = project.OpenInEditor()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 	},
 }
 
 func init() {
+	createCmd.Flags().BoolVarP(&Edit, "edit", "e", false, "edit the project immediately after creation")
+
 	rootCmd.AddCommand(createCmd)
 }
