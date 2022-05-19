@@ -13,6 +13,7 @@ import (
 
 var All bool
 var Date bool
+var Percentage bool
 
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -30,6 +31,7 @@ var listCmd = &cobra.Command{
 func init() {
 	listCmd.Flags().BoolVarP(&All, "all", "a", false, "list all projects")
 	listCmd.Flags().BoolVarP(&Date, "date", "d", false, "print an RFC3339 date")
+	listCmd.Flags().BoolVarP(&Percentage, "percentage", "p", false, "print project completion in percentage")
 
 	rootCmd.AddCommand(listCmd)
 }
@@ -58,17 +60,39 @@ func (c ChecklistCompletionCell) percentage() float64 {
 }
 
 func (c ChecklistCompletionCell) Width() int {
-	percentage := fmt.Sprintf("%.f", c.percentage()) + "%"
-	return len(percentage)
+	if Percentage {
+		percentage := fmt.Sprintf("%.f", c.percentage()) + "%"
+		return len(percentage)
+	} else {
+		return 5
+	}
 }
 
 func (c ChecklistCompletionCell) Render() {
-	percentage := fmt.Sprintf("%.f", c.percentage()) + "%"
+	if Percentage {
+		percentage := fmt.Sprintf("%.f", c.percentage()) + "%"
 
-	if c.Project.TasksComplete == c.Project.TasksTotal {
-		color.New(color.FgGreen).Print(percentage)
+		if c.Project.TasksComplete == c.Project.TasksTotal {
+			color.New(color.FgGreen).Print(percentage)
+		} else {
+			color.New(color.FgRed).Print(percentage)
+		}
 	} else {
-		color.New(color.FgRed).Print(percentage)
+		percentage := c.percentage()
+
+		if percentage == 100 {
+			color.New(color.FgGreen).Print("▮▮▮▮▮")
+		} else if percentage > 80 {
+			color.New(color.FgYellow).Print("▮▮▮▮▯")
+		} else if percentage > 60 {
+			color.New(color.FgYellow).Print("▮▮▮▯▯")
+		} else if percentage > 40 {
+			color.New(color.FgYellow).Print("▮▮▯▯▯")
+		} else if percentage > 20 {
+			color.New(color.FgRed).Print("▮▯▯▯▯")
+		} else {
+			color.New(color.FgRed).Print("▯▯▯▯▯")
+		}
 	}
 }
 
