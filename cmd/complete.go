@@ -24,7 +24,7 @@ var completeCmd = &cobra.Command{
 		}
 
 		now := time.Now()
-		project.Complete = &now
+		project.CompletedAt = &now
 		err = project.Save()
 		if err != nil {
 			log.Fatal(err)

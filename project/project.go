@@ -19,9 +19,9 @@ type Project struct {
 	ID            int
 	Path          string
 	Name          string
-	Date          time.Time
-	Complete      *time.Time
-	Cancelled     *time.Time
+	CreatedAt     time.Time
+	CompletedAt   *time.Time
+	CancelledAt   *time.Time
 	Contents      string
 	TasksTotal    int
 	TasksComplete int
@@ -67,11 +67,11 @@ func NewProject(name string) (Project, error) {
 	}
 
 	return Project{
-		ID:       id,
-		Path:     path,
-		Name:     name,
-		Date:     time.Now(),
-		Contents: strings.Join(content, "\n"),
+		ID:        id,
+		Path:      path,
+		Name:      name,
+		CreatedAt: time.Now(),
+		Contents:  strings.Join(content, "\n"),
 	}, nil
 }
 
@@ -153,7 +153,7 @@ func ListProjects() ([]Project, error) {
 	}
 
 	sort.Slice(projects, func(i, j int) bool {
-		return projects[i].Date.Before(projects[j].Date)
+		return projects[i].CreatedAt.Before(projects[j].CreatedAt)
 	})
 
 	return projects, nil
@@ -192,24 +192,24 @@ func LoadProject(path string) (Project, error) {
 			project.ID = id
 		} else if key == "name" {
 			project.Name = value
-		} else if key == "date" {
+		} else if key == "created_at" {
 			date, err := time.Parse(time.RFC3339, value)
 			if err != nil {
 				return Project{}, err
 			}
-			project.Date = date
-		} else if key == "complete" {
+			project.CreatedAt = date
+		} else if key == "completed_at" {
 			date, err := time.Parse(time.RFC3339, value)
 			if err != nil {
 				return Project{}, err
 			}
-			project.Complete = &date
-		} else if key == "cancelled" {
+			project.CompletedAt = &date
+		} else if key == "cancelled_at" {
 			date, err := time.Parse(time.RFC3339, value)
 			if err != nil {
 				return Project{}, err
 			}
-			project.Cancelled = &date
+			project.CancelledAt = &date
 		}
 	}
 
@@ -304,20 +304,18 @@ func ReadLines(path string) ([]string, error) {
 }
 
 func (p Project) Save() error {
-	date := p.Date.Format(time.RFC3339)
-
 	rows := []string{
 		"---",
 		"id=" + strconv.Itoa(p.ID),
 		"name=" + p.Name,
-		"date=" + date,
+		"created_at=" + p.CreatedAt.Format(time.RFC3339),
 	}
 
-	if p.Complete != nil {
-		rows = append(rows, "complete="+p.Complete.Format(time.RFC3339))
+	if p.CompletedAt != nil {
+		rows = append(rows, "completed_at="+p.CompletedAt.Format(time.RFC3339))
 	}
-	if p.Cancelled != nil {
-		rows = append(rows, "cancelled="+p.Cancelled.Format(time.RFC3339))
+	if p.CancelledAt != nil {
+		rows = append(rows, "cancelled_at="+p.CancelledAt.Format(time.RFC3339))
 	}
 	rows = append(rows, "---")
 	rows = append(rows, "")
@@ -367,5 +365,5 @@ func (p Project) Hidden() bool {
 }
 
 func (p Project) Visible() bool {
-	return p.Complete == nil && p.Cancelled == nil
+	return p.CompletedAt == nil && p.CancelledAt == nil
 }

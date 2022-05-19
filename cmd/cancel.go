@@ -24,7 +24,7 @@ var cancelCmd = &cobra.Command{
 		}
 
 		now := time.Now()
-		project.Cancelled = &now
+		project.CancelledAt = &now
 		err = project.Save()
 		if err != nil {
 			log.Fatal(err)

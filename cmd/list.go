@@ -78,13 +78,13 @@ type DateStatusCell struct {
 
 func (c DateStatusCell) formatDate() string {
 	if Date {
-		return c.Project.Date.Format(time.RFC3339)
-	} else if timesAreSameDay(time.Now(), c.Project.Date) {
-		return c.Project.Date.Format("15:04")
-	} else if timesAreSameYear(time.Now(), c.Project.Date) {
-		return c.Project.Date.Format("2 Jan")
+		return c.Project.CreatedAt.Format(time.RFC3339)
+	} else if timesAreSameDay(time.Now(), c.Project.CreatedAt) {
+		return c.Project.CreatedAt.Format("15:04")
+	} else if timesAreSameYear(time.Now(), c.Project.CreatedAt) {
+		return c.Project.CreatedAt.Format("2 Jan")
 	} else {
-		return c.Project.Date.Format("02-01-2006")
+		return c.Project.CreatedAt.Format("02-01-2006")
 	}
 }
 
