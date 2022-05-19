@@ -27,6 +27,7 @@ var showCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 	},
+	ValidArgsFunction: validArgsFunction,
 }
 
 func init() {

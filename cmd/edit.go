@@ -27,6 +27,7 @@ var editCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 	},
+	ValidArgsFunction: validArgsFunction,
 }
 
 func init() {

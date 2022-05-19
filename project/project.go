@@ -362,3 +362,7 @@ func (p Project) Show() error {
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
+
+func (p Project) Visible() bool {
+	return p.Complete == nil && p.Cancelled == nil
+}

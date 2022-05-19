@@ -30,6 +30,7 @@ var cancelCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 	},
+	ValidArgsFunction: validArgsFunction,
 }
 
 func init() {

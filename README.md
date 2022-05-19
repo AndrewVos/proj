@@ -29,3 +29,10 @@ Flags:
 
 Use "proj [command] --help" for more information about a command.
 ```
+
+## Completion
+
+```sh
+# fish
+proj completion fish | source
+```

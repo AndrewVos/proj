@@ -30,6 +30,7 @@ var completeCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 	},
+	ValidArgsFunction: validArgsFunction,
 }
 
 func init() {
