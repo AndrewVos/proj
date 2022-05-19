@@ -190,7 +190,6 @@ func LoadProject(path string) (Project, error) {
 				return Project{}, err
 			}
 			project.ID = id
-
 		} else if key == "name" {
 			project.Name = value
 		} else if key == "date" {
@@ -361,6 +360,10 @@ func (p Project) Show() error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
+}
+
+func (p Project) Hidden() bool {
+	return !p.Visible()
 }
 
 func (p Project) Visible() bool {
