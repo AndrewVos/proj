@@ -83,15 +83,15 @@ func (c ChecklistCompletionCell) Render() {
 		if percentage == 100 {
 			color.New(color.FgGreen).Print("▮▮▮▮▮")
 		} else if percentage > 80 {
-			color.New(color.FgYellow).Print("▮▮▮▮▯")
+			color.New(color.FgMagenta).Print("▮▮▮▮▯")
 		} else if percentage > 60 {
-			color.New(color.FgYellow).Print("▮▮▮▯▯")
+			color.New(color.FgMagenta).Print("▮▮▮▯▯")
 		} else if percentage > 40 {
-			color.New(color.FgYellow).Print("▮▮▯▯▯")
+			color.New(color.FgMagenta).Print("▮▮▯▯▯")
 		} else if percentage > 20 {
-			color.New(color.FgRed).Print("▮▯▯▯▯")
+			color.New(color.FgCyan).Print("▮▯▯▯▯")
 		} else {
-			color.New(color.FgRed).Print("▯▯▯▯▯")
+			fmt.Printf("▯▯▯▯▯")
 		}
 	}
 }
