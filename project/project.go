@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -329,11 +330,15 @@ func (p Project) Save() error {
 func (p Project) OpenInEditor() error {
 	editor := os.Getenv("EDITOR")
 
-	cmd := exec.Command(editor, p.Path)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	binary, err := exec.LookPath(editor)
+	if err != nil {
+		return err
+	}
+
+	env := os.Environ()
+	err = syscall.Exec(binary, []string{editor, p.Path}, env)
+
+	return err
 }
 
 func Find(id int) (Project, error) {
