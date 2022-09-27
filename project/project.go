@@ -64,7 +64,7 @@ func NewProject(name string) (Project, error) {
 		"",
 		"## Tasks",
 		"",
-		"- [ ] First Task",
+		"- [ ] " + name,
 	}
 
 	return Project{
